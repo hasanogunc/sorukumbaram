@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Soru Kumbaram</title>
+    <!-- Otomatik API Key Okuma (apikey.js dosyası varsa buradan çeker) -->
+    <script src="apikey.js"></script>
     <style>
         :root {
             --primary: #3b82f6; /* Blue */
@@ -433,14 +435,14 @@
                 <label class="form-label">Google Gemini API Key (Zorunlu)</label>
                 <small style="display:block; margin-bottom:10px; color:#666;">
                     Yapay zeka ile resim temizlemek için gereklidir.<br>
-                    <strong>İpucu:</strong> Aynı klasörde <code>apikey.txt</code> dosyası varsa oradan otomatik okunur.
+                    <strong>İpucu:</strong> Dosya erişim hatası almamak için aynı klasörde <code>apikey.js</code> oluşturun ve içine <code>window.GEMINI_API_KEY = "KEY";</code> yazın.
                 </small>
                 <input type="password" id="input-apikey" class="form-input" placeholder="AIzaSy..." onchange="app.saveSettings()">
             </div>
             <div class="form-group">
                 <button class="btn btn-secondary" onclick="app.clearData()">🗑️ Tüm Verileri Sil</button>
             </div>
-            <p style="font-size:12px; color:#999; margin-top:auto; text-align:center;">Versiyon 1.7 - Nano Banana AI Edition</p>
+            <p style="font-size:12px; color:#999; margin-top:auto; text-align:center;">Versiyon 1.8 - apikey.js Edition</p>
         </div>
 
     </div>
@@ -470,6 +472,16 @@
             },
 
             loadApiKeyFromFile: async function() {
+                // Yöntem 1: apikey.js (Önerilen)
+                if (typeof window.GEMINI_API_KEY !== 'undefined' && window.GEMINI_API_KEY.length > 10) {
+                    this.data.apiKey = window.GEMINI_API_KEY;
+                    if(document.getElementById('input-apikey')) {
+                        document.getElementById('input-apikey').value = this.data.apiKey;
+                    }
+                    return; // js dosyasından aldıysak txt'ye bakmaya gerek yok
+                }
+
+                // Yöntem 2: apikey.txt (Yedek - Localhost gerektirir)
                 try {
                     const response = await fetch('apikey.txt');
                     if (response.ok) {
@@ -477,7 +489,10 @@
                         const key = text.trim();
                         if (key.length > 10) this.data.apiKey = key;
                     }
-                } catch (e) {}
+                } catch (e) {
+                    console.log("apikey.txt okunamadı (Doğrudan dosya açımında güvenlik nedeniyle engellenir).");
+                }
+                
                 if(this.data.apiKey) {
                     const input = document.getElementById('input-apikey');
                     if(input) input.value = this.data.apiKey;
@@ -613,13 +628,13 @@
                 const isCleanRequested = document.getElementById('chk-clean-image').checked;
 
                 if (isCleanRequested) {
-                    // API Key yoksa dosyadan okumayı dene (Refresh)
+                    // API Key yoksa dosyadan/js'den okumayı dene (Refresh)
                     if (!this.data.apiKey) {
                         await this.loadApiKeyFromFile();
                     }
 
                     if (!this.data.apiKey) { 
-                        alert("API Anahtarı bulunamadı.\n\nLütfen 'apikey.txt' dosyasının doğru yerde olduğundan emin olun veya Ayarlar'dan manuel girin.\n(Not: Dosyayı çift tıklayarak açtıysanız tarayıcı txt okumayı engelleyebilir)."); 
+                        alert("API Anahtarı bulunamadı.\n\nÇözüm:\n1. 'apikey.js' adında bir dosya oluşturun.\n2. İçine şunu yazın: window.GEMINI_API_KEY = 'ANAHTARINIZ';\n3. Sayfayı yenileyin."); 
                         return; 
                     }
 

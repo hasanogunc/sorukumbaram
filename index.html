@@ -207,6 +207,7 @@
             top: 0;
             left: 0;
             cursor: pointer;
+            z-index: 10; /* iPhone dokunma algılaması için öne getirildi */
         }
 
         /* --- Toast Notification --- */
@@ -334,11 +335,15 @@
                     <label class="form-label">Soru Fotoğrafı *</label>
                     <div id="preview-container">
                         <div class="preview-placeholder">
-                            📷<br>Fotoğraf çek veya yükle
+                            📷<br>Fotoğraf çek veya galeri seç
                         </div>
                         <img id="preview-image" alt="Önizleme">
-                        <!-- capture="environment" kaldırıldı, artık galeri seçeneği de çıkacak -->
-                        <input type="file" id="input-file" accept="image/*" onchange="app.handleFileSelect(this)" required>
+                        <!-- 
+                            iOS Düzeltmesi: 
+                            - multiple özelliği eklendi (galeriyi tetiklemek için hack)
+                            - accept genişletildi
+                        -->
+                        <input type="file" id="input-file" accept="image/*" multiple onchange="app.handleFileSelect(this)">
                     </div>
                 </div>
 

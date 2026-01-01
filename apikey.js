@@ -1,0 +1,1 @@
+window.GEMINI_API_KEY = "AIzaSyB0l3eP8nBh95InjeY03guGkIJVvjaQtH0";

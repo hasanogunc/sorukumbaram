@@ -187,6 +187,7 @@
             overflow: hidden;
             margin-bottom: 10px;
             position: relative;
+            cursor: pointer; /* Tıklanabilir olduğu belli olsun */
         }
         #preview-image {
             width: 100%;
@@ -199,15 +200,10 @@
             color: #999;
             pointer-events: none;
         }
-        input[type="file"] {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            top: 0;
-            left: 0;
-            cursor: pointer;
-            z-index: 10; /* iPhone dokunma algılaması için öne getirildi */
+        
+        /* Input'u tamamen gizleyip butonla tetikleyeceğiz */
+        #input-file {
+            display: none;
         }
 
         /* --- Toast Notification --- */
@@ -333,18 +329,26 @@
                 <!-- Fotoğraf Alanı -->
                 <div class="form-group">
                     <label class="form-label">Soru Fotoğrafı *</label>
-                    <div id="preview-container">
+                    
+                    <!-- Önizleme Alanı: Tıklayınca da tetikler -->
+                    <div id="preview-container" onclick="document.getElementById('input-file').click()">
                         <div class="preview-placeholder">
-                            📷<br>Fotoğraf çek veya galeri seç
+                            <span style="font-size: 32px;">📷</span><br>
+                            Fotoğraf alanı boş
                         </div>
                         <img id="preview-image" alt="Önizleme">
-                        <!-- 
-                            iOS Düzeltmesi: 
-                            - multiple özelliği eklendi (galeriyi tetiklemek için hack)
-                            - accept genişletildi
-                        -->
-                        <input type="file" id="input-file" accept="image/*" multiple onchange="app.handleFileSelect(this)">
                     </div>
+
+                    <!-- Gizli Input + Açık Buton -->
+                    <input type="file" id="input-file" accept="image/*" onchange="app.handleFileSelect(this)">
+                    
+                    <button type="button" class="btn btn-secondary" style="margin-top: 10px;" onclick="document.getElementById('input-file').click()">
+                        📂 Galeriyi / Kamerayı Aç
+                    </button>
+                    
+                    <small style="display: block; color: #999; margin-top: 5px; font-size: 11px;">
+                        Basınca açılmıyorsa: Telefon Ayarları > Safari > Kamera/Fotoğraf izinlerini kontrol et.
+                    </small>
                 </div>
 
                 <!-- Ders Seçimi -->

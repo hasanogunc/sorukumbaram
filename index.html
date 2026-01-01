@@ -30,7 +30,8 @@
         body {
             background-color: var(--gray-100);
             color: var(--gray-800);
-            height: 100vh;
+            height: 100vh; /* Viewport height */
+            height: 100dvh; /* Dynamic viewport height (mobil adres çubuğu için daha iyi) */
             display: flex;
             flex-direction: column;
             overflow: hidden; /* App-like feel */
@@ -40,6 +41,7 @@
         #app-container {
             flex: 1;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
             position: relative;
             max-width: 600px;
             margin: 0 auto;
@@ -52,6 +54,8 @@
         .view {
             display: none;
             padding: 20px;
+            /* Alt kısımda bolca boşluk bırakarak butonların sıkışmasını engelliyoruz */
+            padding-bottom: 120px; 
             min-height: 100%;
             flex-direction: column;
             animation: fadeIn 0.3s ease;
@@ -140,7 +144,7 @@
         .card-list {
             display: grid;
             gap: 15px;
-            padding-bottom: 80px; /* Space for bottom content */
+            /* padding-bottom burada da vardı ama view padding'i ile birleştirdik */
         }
         .card {
             background: var(--white);

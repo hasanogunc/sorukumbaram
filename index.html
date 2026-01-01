@@ -586,7 +586,7 @@
                 const payload = {
                     contents: [{
                         parts: [
-                            { text: "Remove any handwriting, doodles, or pencil marks from this image. Keep the printed text, diagrams, and figures exactly as they are. Output a clean version of the document, as if it was scanned." },
+                            { text: "Remove all handwriting, pencil marks, and doodles to restore the original clean document. Strictly preserve all printed text, diagrams, and formatting. Do NOT generate new text or handwriting. Return a high-quality, blank version of the original exam paper." },
                             { inline_data: { mime_type: "image/jpeg", data: base64Image } }
                         ]
                     }],

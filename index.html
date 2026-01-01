@@ -11,6 +11,7 @@
             --danger: #ef4444; /* Red */
             --warning: #f59e0b; /* Orange */
             --success: #10b981; /* Green */
+            --purple: #8b5cf6; /* AI Color */
             --gray-100: #f3f4f6;
             --gray-200: #e5e7eb;
             --gray-800: #1f2937;
@@ -30,18 +31,18 @@
         body {
             background-color: var(--gray-100);
             color: var(--gray-800);
-            height: 100vh; /* Viewport height */
-            height: 100dvh; /* Dynamic viewport height (mobil adres çubuğu için daha iyi) */
+            height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* App-like feel */
+            overflow: hidden;
         }
 
         /* --- Layout & Views --- */
         #app-container {
             flex: 1;
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
+            -webkit-overflow-scrolling: touch;
             position: relative;
             max-width: 600px;
             margin: 0 auto;
@@ -54,7 +55,6 @@
         .view {
             display: none;
             padding: 20px;
-            /* Alt kısımda bolca boşluk bırakarak butonların sıkışmasını engelliyoruz */
             padding-bottom: 120px; 
             min-height: 100%;
             flex-direction: column;
@@ -92,11 +92,14 @@
             margin-bottom: 12px;
         }
         .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.7; cursor: wait; }
         
         .btn-primary { background-color: var(--primary); color: white; }
         .btn-secondary { background-color: var(--white); border: 2px solid var(--gray-200); color: var(--gray-800); }
         .btn-danger { background-color: var(--danger); color: white; }
+        .btn-ai { background: linear-gradient(135deg, #4285F4, #9b72cb); color: white; border: none; } /* Gemini Gradient */
         .btn-lg { height: 80px; font-size: 18px; margin-bottom: 20px; }
+        .btn-sm { padding: 8px 16px; font-size: 14px; width: auto; display: inline-flex; margin-bottom: 0; }
 
         .form-group { margin-bottom: 20px; }
         .form-label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
@@ -115,12 +118,32 @@
             outline: none;
         }
 
-        /* --- Radio Chips (Status Selection) --- */
-        .status-options {
+        /* --- Checkbox Style --- */
+        .clean-checkbox-wrapper {
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            align-items: center;
+            background: #fdf4ff; /* Light purple/pink bg for AI */
+            border: 1px solid #e879f9;
+            padding: 12px;
+            border-radius: var(--radius);
+            margin-top: 10px;
+            cursor: pointer;
         }
+        .clean-checkbox-wrapper input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            accent-color: var(--purple);
+        }
+        .clean-checkbox-wrapper label {
+            font-weight: 600;
+            color: #86198f;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* --- Radio Chips --- */
+        .status-options { display: flex; gap: 10px; flex-wrap: wrap; }
         .status-options input[type="radio"] { display: none; }
         .status-chip {
             flex: 1;
@@ -135,17 +158,13 @@
             white-space: nowrap;
         }
         
-        /* Status Colors Logic */
         input[value="yanlis"]:checked + .status-chip { background-color: #fee2e2; border-color: var(--danger); color: var(--danger); }
         input[value="bos"]:checked + .status-chip { background-color: #f3f4f6; border-color: #6b7280; color: #374151; }
         input[value="zor"]:checked + .status-chip { background-color: #fef3c7; border-color: var(--warning); color: #d97706; }
+        input[value="yeni"]:checked + .status-chip { background-color: #dbeafe; border-color: var(--primary); color: var(--primary-dark); }
 
         /* --- Cards --- */
-        .card-list {
-            display: grid;
-            gap: 15px;
-            /* padding-bottom burada da vardı ama view padding'i ile birleştirdik */
-        }
+        .card-list { display: grid; gap: 15px; }
         .card {
             background: var(--white);
             border: 1px solid var(--gray-200);
@@ -177,6 +196,7 @@
         .badge-yanlis { background: #fee2e2; color: var(--danger); }
         .badge-bos { background: #f3f4f6; color: #4b5563; }
         .badge-zor { background: #fef3c7; color: #d97706; }
+        .badge-yeni { background: #dbeafe; color: var(--primary-dark); }
 
         /* --- Image Preview Area --- */
         #preview-container {
@@ -191,24 +211,11 @@
             overflow: hidden;
             margin-bottom: 10px;
             position: relative;
-            cursor: pointer; /* Tıklanabilir olduğu belli olsun */
+            cursor: pointer;
         }
-        #preview-image {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: none;
-        }
-        .preview-placeholder {
-            text-align: center;
-            color: #999;
-            pointer-events: none;
-        }
-        
-        /* Input'u tamamen gizleyip butonla tetikleyeceğiz */
-        #input-file {
-            display: none;
-        }
+        #preview-image { width: 100%; height: 100%; object-fit: contain; display: none; }
+        .preview-placeholder { text-align: center; color: #999; pointer-events: none; }
+        #input-file { display: none; }
 
         /* --- Toast Notification --- */
         #toast {
@@ -230,49 +237,31 @@
         #toast.show { opacity: 1; }
 
         /* --- Header in Views --- */
-        .view-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .back-btn {
-            font-size: 24px;
-            background: none;
-            border: none;
-            margin-right: 15px;
-            cursor: pointer;
-            padding: 5px;
-        }
+        .view-header { display: flex; align-items: center; margin-bottom: 20px; }
+        .back-btn { font-size: 24px; background: none; border: none; margin-right: 15px; cursor: pointer; padding: 5px; }
+        .settings-btn { font-size: 24px; background: none; border: none; cursor: pointer; padding: 5px; margin-left: auto; }
 
         /* --- Detail View --- */
-        .detail-image {
-            width: 100%;
-            border-radius: var(--radius);
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-        }
-        .detail-meta {
-            background: var(--gray-100);
-            padding: 15px;
-            border-radius: var(--radius);
-            margin-bottom: 20px;
-        }
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
+        .detail-image { width: 100%; border-radius: var(--radius); margin-bottom: 20px; box-shadow: var(--shadow); }
+        .detail-meta { background: var(--gray-100); padding: 15px; border-radius: var(--radius); margin-bottom: 20px; }
+        .detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
         .detail-row span:first-child { color: #666; }
         .detail-row span:last-child { font-weight: 600; }
-        .detail-note {
-            background: #fffbe6;
-            padding: 15px;
-            border: 1px solid #ffe58f;
-            border-radius: var(--radius);
-            margin-bottom: 20px;
-            font-style: italic;
+        .detail-note { background: #fffbe6; padding: 15px; border: 1px solid #ffe58f; border-radius: var(--radius); margin-bottom: 20px; font-style: italic; white-space: pre-wrap; }
+        
+        /* Loading Spinner */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid var(--purple);
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
         }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -285,26 +274,23 @@
                 <div style="font-size: 60px; margin-bottom: 20px;">📚</div>
                 <h1>Soru Kumbaram</h1>
                 <p>Çözemediğin soruları kaydet,<br>tekrar et, başarıya ulaş.</p>
-                
                 <div class="form-group" style="width: 100%; max-width: 300px; margin-top: 30px;">
                     <label class="form-label">Adın veya Takma Adın</label>
                     <input type="text" id="input-username" class="form-input" placeholder="Örn: Çalışkan Öğrenci">
                 </div>
             </div>
-            
             <button class="btn btn-primary" onclick="app.finishOnboarding()">Başla</button>
-            <p style="text-align: center; font-size: 12px; color: #999; margin-top: 10px;">
-                ⚠️ Veriler sadece bu cihazda saklanır. Tarayıcı geçmişini silerseniz arşiv kaybolabilir.
-            </p>
+            <p style="text-align: center; font-size: 12px; color: #999; margin-top: 10px;">⚠️ Veriler cihazda saklanır.</p>
         </div>
 
         <!-- 1. Home View -->
         <div id="view-home" class="view">
-            <div class="view-header" style="justify-content: space-between;">
+            <div class="view-header">
                 <div>
                     <h2>Merhaba, <span id="display-username">Öğrenci</span> 👋</h2>
                     <small>Bugün ne kadar soru biriktirdin?</small>
                 </div>
+                <button class="settings-btn" onclick="app.router('settings')">⚙️</button>
             </div>
 
             <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
@@ -334,24 +320,25 @@
                 <div class="form-group">
                     <label class="form-label">Soru Fotoğrafı *</label>
                     
-                    <!-- Önizleme Alanı: Tıklayınca da tetikler -->
                     <div id="preview-container" onclick="document.getElementById('input-file').click()">
                         <div class="preview-placeholder">
-                            <span style="font-size: 32px;">📷</span><br>
-                            Fotoğraf alanı boş
+                            <span style="font-size: 32px;">📷</span><br>Fotoğraf alanı boş
                         </div>
                         <img id="preview-image" alt="Önizleme">
                     </div>
-
-                    <!-- Gizli Input + Açık Buton -->
                     <input type="file" id="input-file" accept="image/*" onchange="app.handleFileSelect(this)">
                     
                     <button type="button" class="btn btn-secondary" style="margin-top: 10px;" onclick="document.getElementById('input-file').click()">
-                        📂 Galeriyi / Kamerayı Aç
+                        📂 Yükle / Kamera
                     </button>
                     
-                    <small style="display: block; color: #999; margin-top: 5px; font-size: 11px;">
-                        Basınca açılmıyorsa: Telefon Ayarları > Safari > Kamera/Fotoğraf izinlerini kontrol et.
+                    <!-- Temizleme Checkbox -->
+                    <div class="clean-checkbox-wrapper" id="clean-wrapper" style="display:none;">
+                        <input type="checkbox" id="chk-clean-image">
+                        <label for="chk-clean-image">✨ Yapay Zeka ile Resmi Temizle</label>
+                    </div>
+                    <small id="clean-hint" style="display:none; color:#86198f; font-size:11px; margin-left:5px; margin-top:4px;">
+                        Google AI (Nano Banana) resmi analiz edip el yazılarını silecektir.
                     </small>
                 </div>
 
@@ -386,16 +373,20 @@
                             <input type="radio" name="status" value="zor">
                             <div class="status-chip">Zorlandım</div>
                         </label>
+                         <label>
+                            <input type="radio" name="status" value="yeni">
+                            <div class="status-chip">Yeni Soru</div>
+                        </label>
                     </div>
                 </div>
 
                 <!-- Not -->
                 <div class="form-group">
-                    <label class="form-label">Not (Opsiyonel)</label>
-                    <textarea id="input-note" class="form-textarea" rows="3" placeholder="Nerede hata yaptın?"></textarea>
+                    <label class="form-label">Soru Metni / Notlar</label>
+                    <textarea id="input-note" class="form-textarea" rows="4" placeholder="Kendi notlarını buraya ekle..."></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Arşivle</button>
+                <button type="submit" id="btn-submit" class="btn btn-primary">Arşivle</button>
             </form>
         </div>
 
@@ -405,8 +396,6 @@
                 <button class="back-btn" onclick="app.router('home')">←</button>
                 <h2>Arşiv</h2>
             </div>
-
-            <!-- Filtreler -->
             <div style="margin-bottom: 20px;">
                 <select id="filter-lesson" class="form-select" onchange="app.renderArchiveList()">
                     <option value="all">Tüm Dersler</option>
@@ -419,13 +408,8 @@
                     <option value="Diğer">Diğer</option>
                 </select>
             </div>
-
-            <!-- Liste -->
             <div id="archive-list" class="card-list">
-                <!-- JS ile doldurulacak -->
-                <div style="text-align: center; color: #999; margin-top: 50px;">
-                    Henüz kayıtlı soru yok.
-                </div>
+                <div style="text-align: center; color: #999; margin-top: 50px;">Henüz kayıtlı soru yok.</div>
             </div>
         </div>
 
@@ -435,12 +419,28 @@
                 <button class="back-btn" onclick="app.router('archive')">←</button>
                 <h2>Soru Detayı</h2>
             </div>
-
-            <div id="detail-content">
-                <!-- JS ile dolacak -->
-            </div>
-
+            <div id="detail-content"></div>
             <button id="btn-delete" class="btn btn-danger" style="margin-top: auto;">Bu Soruyu Sil</button>
+        </div>
+
+        <!-- 5. Settings View -->
+        <div id="view-settings" class="view">
+            <div class="view-header">
+                <button class="back-btn" onclick="app.router('home')">←</button>
+                <h2>Ayarlar</h2>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Google Gemini API Key (Zorunlu)</label>
+                <small style="display:block; margin-bottom:10px; color:#666;">
+                    Yapay zeka ile resim temizlemek için gereklidir.<br>
+                    <strong>İpucu:</strong> Aynı klasörde <code>apikey.txt</code> dosyası varsa oradan otomatik okunur.
+                </small>
+                <input type="password" id="input-apikey" class="form-input" placeholder="AIzaSy..." onchange="app.saveSettings()">
+            </div>
+            <div class="form-group">
+                <button class="btn btn-secondary" onclick="app.clearData()">🗑️ Tüm Verileri Sil</button>
+            </div>
+            <p style="font-size:12px; color:#999; margin-top:auto; text-align:center;">Versiyon 1.7 - Nano Banana AI Edition</p>
         </div>
 
     </div>
@@ -449,49 +449,70 @@
     <div id="toast">İşlem Başarılı</div>
 
     <script>
-        /**
-         * Basit Uygulama Mantığı (Vanilla JS)
-         */
         const app = {
             data: {
                 username: 'Misafir',
+                apiKey: '',
                 questions: []
             },
-            currentImageBase64: null, // Yükleme sırasındaki geçici görsel
+            currentImageBase64: null,
             currentDetailId: null,
 
-            // Başlangıç
             init: function() {
                 this.loadData();
-                
-                // Eğer kullanıcı adı varsa direkt Home'a git, yoksa Onboarding
                 if (localStorage.getItem('sk_username')) {
                     this.data.username = localStorage.getItem('sk_username');
                     this.router('home');
                 } else {
                     this.router('onboarding');
                 }
+                this.loadApiKeyFromFile();
             },
 
-            // Sayfa Yönlendirme
+            loadApiKeyFromFile: async function() {
+                try {
+                    const response = await fetch('apikey.txt');
+                    if (response.ok) {
+                        const text = await response.text();
+                        const key = text.trim();
+                        if (key.length > 10) this.data.apiKey = key;
+                    }
+                } catch (e) {}
+                if(this.data.apiKey) {
+                    const input = document.getElementById('input-apikey');
+                    if(input) input.value = this.data.apiKey;
+                }
+            },
+
             router: function(viewId) {
-                // Tüm view'ları gizle
                 document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-                
-                // İlgili view'ı aç
                 const target = document.getElementById(`view-${viewId}`);
                 if (target) {
                     target.classList.add('active');
                     window.scrollTo(0,0);
                 }
-
-                // View açılırken yapılacak özel işler
                 if (viewId === 'home') this.updateHomeUI();
                 if (viewId === 'archive') this.renderArchiveList();
-                if (viewId === 'add') this.resetAddForm();
+                if (viewId === 'add') this.checkImageStatus();
+                if (viewId === 'settings' && this.data.apiKey) {
+                    document.getElementById('input-apikey').value = this.data.apiKey;
+                }
             },
 
-            // Onboarding Tamamlama
+            checkImageStatus: function() {
+                const wrapper = document.getElementById('clean-wrapper');
+                const hint = document.getElementById('clean-hint');
+                
+                if (this.currentImageBase64) {
+                    wrapper.style.display = 'flex';
+                    hint.style.display = 'block';
+                } else {
+                    wrapper.style.display = 'none';
+                    hint.style.display = 'none';
+                    document.getElementById('chk-clean-image').checked = false;
+                }
+            },
+
             finishOnboarding: function() {
                 const inputName = document.getElementById('input-username').value.trim();
                 this.data.username = inputName || 'Misafir';
@@ -500,127 +521,168 @@
                 this.router('home');
             },
 
-            // Home Ekranını Güncelleme
             updateHomeUI: function() {
                 document.getElementById('display-username').textContent = this.data.username;
                 document.getElementById('total-count').textContent = this.data.questions.length;
             },
 
-            // Dosya Seçimi ve Sıkıştırma (ÖNEMLİ: LocalStorage kotası için)
             handleFileSelect: function(input) {
                 if (input.files && input.files[0]) {
                     const file = input.files[0];
                     const reader = new FileReader();
-                    
                     reader.onload = (e) => {
-                        // Resmi sıkıştırmak için Image objesi oluştur
                         const img = new Image();
                         img.src = e.target.result;
-                        
                         img.onload = () => {
-                            // Canvas oluştur
                             const canvas = document.createElement('canvas');
                             const ctx = canvas.getContext('2d');
-                            
-                            // Yeni boyutları hesapla (Max width 800px)
                             const maxWidth = 800;
                             let width = img.width;
                             let height = img.height;
-                            
                             if (width > maxWidth) {
                                 height = height * (maxWidth / width);
                                 width = maxWidth;
                             }
-                            
                             canvas.width = width;
                             canvas.height = height;
-                            
-                            // Resmi canvas'a çiz
                             ctx.drawImage(img, 0, 0, width, height);
+                            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
                             
-                            // Base64 string'e çevir (JPEG, 0.7 kalite)
-                            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                            
-                            // Önizleme ve state güncelleme
                             document.getElementById('preview-image').src = compressedDataUrl;
                             document.getElementById('preview-image').style.display = 'block';
                             document.querySelector('.preview-placeholder').style.display = 'none';
                             
                             app.currentImageBase64 = compressedDataUrl;
+                            app.checkImageStatus();
                         };
                     };
-                    
                     reader.readAsDataURL(file);
                 }
             },
 
-            // Soru Kaydetme
-            saveQuestion: function(e) {
-                e.preventDefault();
+            // --- YENİ: Google AI ile Resim Temizleme Fonksiyonu ---
+            cleanImageWithGemini: async function() {
+                const base64Image = this.currentImageBase64.split(',')[1];
+                const apiKey = this.data.apiKey;
+                
+                // Görüntü işleme/üretme modeli
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`;
 
-                // Validasyon (HTML5 required zaten engelliyor ama ekstra kontrol)
-                if (!this.currentImageBase64) {
-                    alert("Lütfen bir fotoğraf seçin.");
-                    return;
+                const payload = {
+                    contents: [{
+                        parts: [
+                            { text: "Remove any handwriting, doodles, or pencil marks from this image. Keep the printed text, diagrams, and figures exactly as they are. Output a clean version of the document, as if it was scanned." },
+                            { inline_data: { mime_type: "image/jpeg", data: base64Image } }
+                        ]
+                    }],
+                    generationConfig: {
+                        responseModalities: ["IMAGE"]
+                    }
+                };
+
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error.message || "API Hatası oluştu.");
+
+                // Gelen veride resim (inlineData) var mı kontrol et
+                if(data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+                    const parts = data.candidates[0].content.parts;
+                    const imagePart = parts.find(p => p.inlineData);
+                    
+                    if (imagePart && imagePart.inlineData && imagePart.inlineData.data) {
+                        return "data:image/png;base64," + imagePart.inlineData.data;
+                    }
+                }
+                
+                throw new Error("AI resim döndürmedi, sadece metin döndürmüş olabilir.");
+            },
+
+            saveQuestion: async function(e) {
+                e.preventDefault();
+                if (!this.currentImageBase64) { alert("Lütfen bir fotoğraf seçin."); return; }
+
+                const btn = document.getElementById('btn-submit');
+                const originalBtnText = btn.textContent;
+                
+                let finalImage = this.currentImageBase64;
+                const isCleanRequested = document.getElementById('chk-clean-image').checked;
+
+                if (isCleanRequested) {
+                    // API Key yoksa dosyadan okumayı dene (Refresh)
+                    if (!this.data.apiKey) {
+                        await this.loadApiKeyFromFile();
+                    }
+
+                    if (!this.data.apiKey) { 
+                        alert("API Anahtarı bulunamadı.\n\nLütfen 'apikey.txt' dosyasının doğru yerde olduğundan emin olun veya Ayarlar'dan manuel girin.\n(Not: Dosyayı çift tıklayarak açtıysanız tarayıcı txt okumayı engelleyebilir)."); 
+                        return; 
+                    }
+
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="loader"></span> AI Temizliyor...';
+                    
+                    try {
+                        // AI ile temizle
+                        finalImage = await this.cleanImageWithGemini();
+                        this.showToast("Resim başarıyla temizlendi! ✨");
+                    } catch (err) {
+                        console.error(err);
+                        alert("Yapay Zeka Hatası: " + err.message + "\n\nOrijinal resim kaydedilecek.");
+                        // Hata olsa da devam et, orijinali kaydet
+                    }
                 }
 
-                const lesson = document.getElementById('input-lesson').value;
-                const status = document.querySelector('input[name="status"]:checked').value;
-                const note = document.getElementById('input-note').value;
-
                 const newQuestion = {
-                    id: Date.now(), // Unique ID
-                    lesson: lesson,
-                    status: status,
-                    note: note,
-                    image: this.currentImageBase64,
+                    id: Date.now(),
+                    lesson: document.getElementById('input-lesson').value,
+                    status: document.querySelector('input[name="status"]:checked').value,
+                    note: document.getElementById('input-note').value,
+                    image: finalImage,
                     createdAt: new Date().toISOString()
                 };
 
-                this.data.questions.unshift(newQuestion); // En başa ekle
+                this.data.questions.unshift(newQuestion);
                 this.saveData();
-
-                this.showToast("Soru Arşivlendi! ✅");
+                if (!isCleanRequested) this.showToast("Soru Arşivlendi! ✅");
+                
+                btn.disabled = false;
+                btn.textContent = originalBtnText;
                 this.router('home');
             },
 
-            // Formu Temizle
             resetAddForm: function() {
                 document.querySelector('form').reset();
                 this.currentImageBase64 = null;
                 document.getElementById('preview-image').style.display = 'none';
                 document.querySelector('.preview-placeholder').style.display = 'block';
+                this.checkImageStatus();
             },
 
-            // Arşiv Listeleme
             renderArchiveList: function() {
                 const listContainer = document.getElementById('archive-list');
                 const filterLesson = document.getElementById('filter-lesson').value;
-                
                 listContainer.innerHTML = '';
-
-                // Filtreleme
+                
                 let filtered = this.data.questions;
-                if (filterLesson !== 'all') {
-                    filtered = filtered.filter(q => q.lesson === filterLesson);
-                }
-
+                if (filterLesson !== 'all') filtered = filtered.filter(q => q.lesson === filterLesson);
                 if (filtered.length === 0) {
                     listContainer.innerHTML = '<div style="text-align: center; color: #999; margin-top: 30px;">Bu kriterde soru bulunamadı.</div>';
                     return;
                 }
 
-                // Kartları Oluştur
                 filtered.forEach(q => {
-                    const statusTextMap = { 'yanlis': 'Yanlış', 'bos': 'Boş', 'zor': 'Zorlandı' };
-                    const statusClassMap = { 'yanlis': 'badge-yanlis', 'bos': 'badge-bos', 'zor': 'badge-zor' };
-                    
+                    const statusTextMap = { 'yanlis': 'Yanlış', 'bos': 'Boş', 'zor': 'Zorlandı', 'yeni': 'Yeni Soru' };
+                    const statusClassMap = { 'yanlis': 'badge-yanlis', 'bos': 'badge-bos', 'zor': 'badge-zor', 'yeni': 'badge-yeni' };
                     const date = new Date(q.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
                     const card = document.createElement('div');
                     card.className = 'card';
                     card.onclick = () => app.openDetail(q.id);
-                    
                     card.innerHTML = `
                         <img src="${q.image}" class="card-thumb" loading="lazy">
                         <div class="card-content">
@@ -636,52 +698,29 @@
                 });
             },
 
-            // Detay Açma
             openDetail: function(id) {
                 const q = this.data.questions.find(item => item.id === id);
                 if (!q) return;
-
                 this.currentDetailId = id;
                 const container = document.getElementById('detail-content');
-                const statusTextMap = { 'yanlis': 'Yanlış', 'bos': 'Boş', 'zor': 'Zorlandı' };
+                const statusTextMap = { 'yanlis': 'Yanlış', 'bos': 'Boş', 'zor': 'Zorlandı', 'yeni': 'Yeni Soru' };
                 const date = new Date(q.createdAt).toLocaleString('tr-TR');
 
                 container.innerHTML = `
                     <img src="${q.image}" class="detail-image">
-                    
                     <div class="detail-meta">
-                        <div class="detail-row">
-                            <span>Ders</span>
-                            <span>${q.lesson}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span>Durum</span>
-                            <span>${statusTextMap[q.status]}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span>Tarih</span>
-                            <span>${date}</span>
-                        </div>
+                        <div class="detail-row"><span>Ders</span><span>${q.lesson}</span></div>
+                        <div class="detail-row"><span>Durum</span><span>${statusTextMap[q.status]}</span></div>
+                        <div class="detail-row"><span>Tarih</span><span>${date}</span></div>
                     </div>
-
-                    ${q.note ? `
-                    <div class="detail-note">
-                        <strong>Notum:</strong><br>
-                        ${q.note}
-                    </div>` : ''}
+                    ${q.note ? `<div class="detail-note"><strong>Not / Soru Metni:</strong><br>${q.note}</div>` : ''}
                 `;
-
-                // Silme butonuna event
                 document.getElementById('btn-delete').onclick = () => {
-                    if (confirm('Bu soruyu arşivden silmek istediğine emin misin?')) {
-                        app.deleteQuestion(id);
-                    }
+                    if (confirm('Bu soruyu silmek istediğine emin misin?')) app.deleteQuestion(id);
                 };
-
                 this.router('detail');
             },
 
-            // Soru Silme
             deleteQuestion: function(id) {
                 this.data.questions = this.data.questions.filter(q => q.id !== id);
                 this.saveData();
@@ -689,23 +728,43 @@
                 this.router('archive');
             },
 
-            // LocalStorage İşlemleri
+            saveSettings: function() {
+                const key = document.getElementById('input-apikey').value.trim();
+                this.data.apiKey = key;
+                this.saveData();
+                this.showToast('Ayarlar kaydedildi.');
+            },
+
+            clearData: function() {
+                if(confirm("TÜM soru arşivi ve ayarlar silinecek. Emin misin?")) {
+                    localStorage.removeItem('sk_data');
+                    localStorage.removeItem('sk_username');
+                    location.reload();
+                }
+            },
+
             saveData: function() {
-                localStorage.setItem('sk_data', JSON.stringify(this.data.questions));
+                localStorage.setItem('sk_data', JSON.stringify({
+                    username: this.data.username,
+                    apiKey: this.data.apiKey,
+                    questions: this.data.questions
+                }));
             },
 
             loadData: function() {
                 const stored = localStorage.getItem('sk_data');
                 if (stored) {
                     try {
-                        this.data.questions = JSON.parse(stored);
-                    } catch (e) {
-                        console.error('Veri okuma hatası', e);
-                    }
+                        const parsed = JSON.parse(stored);
+                        if (Array.isArray(parsed)) {
+                            this.data.questions = parsed;
+                        } else {
+                            this.data = { ...this.data, ...parsed };
+                        }
+                    } catch (e) { console.error('Data error', e); }
                 }
             },
 
-            // Helper: Toast Mesaj
             showToast: function(msg) {
                 const t = document.getElementById('toast');
                 t.textContent = msg;
@@ -714,11 +773,7 @@
             }
         };
 
-        // Uygulamayı Başlat
-        window.addEventListener('DOMContentLoaded', () => {
-            app.init();
-        });
-
+        window.addEventListener('DOMContentLoaded', () => app.init());
     </script>
 </body>
 </html>
